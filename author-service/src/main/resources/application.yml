@@ -1,0 +1,14 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: author-service
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/author-db
+    username: rulik
+    password: qwerty123
+  flyway:
+    enabled: true
+    locations: classpath:/db.migration

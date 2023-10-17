@@ -1,0 +1,22 @@
+services:
+  author-db:
+    image: postgres:15-alpine
+    container_name: author-postgres-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rulik
+      POSTGRES_PASSWORD: qwerty123
+      POSTGRES_DB: author-db
+    volumes:
+      - author-db:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - book-api-network
+
+volumes:
+  author-db:
+
+networks:
+  book-api-network:
+    driver: bridge
