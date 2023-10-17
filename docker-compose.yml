@@ -13,9 +13,39 @@ services:
       - "5432:5432"
     networks:
       - book-api-network
+  book-db:
+    image: postgres:15-alpine
+    container_name: book-postgres-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rulik
+      POSTGRES_PASSWORD: qwerty123
+      POSTGRES_DB: book-db
+    volumes:
+      - book-db:/data/postgres
+    ports:
+      - "5433:5432"
+    networks:
+      - book-api-network
+  notification-db:
+    image: postgres:15-alpine
+    container_name: notification-postgres-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rulik
+      POSTGRES_PASSWORD: qwerty123
+      POSTGRES_DB: notification-db
+    volumes:
+      - notification-db:/data/postgres
+    ports:
+      - "5434:5432"
+    networks:
+      - book-api-network
 
 volumes:
   author-db:
+  book-db:
+  notification-db:
 
 networks:
   book-api-network:
