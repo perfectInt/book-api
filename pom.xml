@@ -12,7 +12,7 @@
         <module>author-service</module>
         <module>notification-service</module>
         <module>book-service</module>
-        <module>kafka</module>
+        <module>feign-clients</module>
     </modules>
 
     <properties>

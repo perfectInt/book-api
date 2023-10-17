@@ -7,14 +7,20 @@ import org.jooq.Record5;
 import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class AuthorService {
 
     @Autowired
     private DSLContext dsl;
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     public void insertAuthor(Author author) {
         dsl.insertInto(Tables.AUTHOR)
@@ -23,6 +29,8 @@ public class AuthorService {
                 .set(Tables.AUTHOR.PATRONYMIC, author.getPatronymic())
                 .set(Tables.AUTHOR.BIOGRAPHY, author.getBiography())
                 .execute();
+
+        sendMessageToAuthorNotificationTopic("Inserted new author: " + author.toString());
     }
 
     public AuthorDto getAuthorById(Integer id) {
@@ -40,5 +48,18 @@ public class AuthorService {
                 .patronymic(record.get("patronymic", String.class))
                 .biography(record.get("biography", String.class))
                 .build();
+    }
+
+    private void sendMessageToAuthorNotificationTopic(String message) {
+        CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send("author-notification-topic", message);
+        future.whenComplete((result, ex) -> {
+            if (ex == null) {
+                System.out.println("Sent message=[" + message +
+                        "] with offset=[" + result.getRecordMetadata().offset() + "]");
+            } else {
+                System.out.println("Unable to send message=[" +
+                        message + "] due to : " + ex.getMessage());
+            }
+        });
     }
 }

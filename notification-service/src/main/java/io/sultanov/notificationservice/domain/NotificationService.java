@@ -1,6 +1,7 @@
 package io.sultanov.notificationservice.domain;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,5 +12,10 @@ public class NotificationService {
 
     public Notification createNotification(NotificationDto notificationDto) {
         return notificationMapper.insertNotification(notificationDto);
+    }
+
+    @KafkaListener(topics = "author-notification-topic", groupId = "author-group")
+    public void receiveMessage(String message) {
+        System.out.println("Received new author from author-service:\n" + message);
     }
 }
