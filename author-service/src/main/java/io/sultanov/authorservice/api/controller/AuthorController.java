@@ -4,8 +4,6 @@ import io.sultanov.authorservice.domain.AuthorDto;
 import io.sultanov.authorservice.domain.AuthorService;
 import io.sultanov.authorservice.domain.tables.pojos.Author;
 import lombok.RequiredArgsConstructor;
-import org.jooq.Record;
-import org.jooq.Result;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

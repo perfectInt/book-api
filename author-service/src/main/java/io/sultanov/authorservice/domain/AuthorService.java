@@ -30,7 +30,7 @@ public class AuthorService {
                 .set(Tables.AUTHOR.BIOGRAPHY, author.getBiography())
                 .execute();
 
-        sendMessageToAuthorNotificationTopic("Inserted new author: " + author.toString());
+        sendMessageToAuthorNotificationTopic(author.toString() + "\n");
     }
 
     public AuthorDto getAuthorById(Integer id) {
