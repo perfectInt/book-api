@@ -1,12 +1,15 @@
 package io.sultanov.authorservice.domain;
 
 import io.sultanov.authorservice.domain.tables.pojos.Author;
+import io.sultanov.feignclients.authorservice.AuthorBookRequest;
+import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Record5;
 import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
@@ -15,29 +18,22 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.concurrent.CompletableFuture;
 
 @Service
+@RequiredArgsConstructor
 public class AuthorService {
 
     @Autowired
-    private DSLContext dsl;
-    @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
+    private final AuthorRepository authorRepository;
+    private final AuthorBookRepository authorBookRepository;
 
     public void insertAuthor(Author author) {
-        dsl.insertInto(Tables.AUTHOR)
-                .set(Tables.AUTHOR.FIRST_NAME, author.getFirstName())
-                .set(Tables.AUTHOR.SECOND_NAME, author.getSecondName())
-                .set(Tables.AUTHOR.PATRONYMIC, author.getPatronymic())
-                .set(Tables.AUTHOR.BIOGRAPHY, author.getBiography())
-                .execute();
+        authorRepository.insertAuthor(author);
 
         sendMessageToAuthorNotificationTopic(author.toString() + "\n");
     }
 
     public AuthorDto getAuthorById(Integer id) {
-        Record record = dsl.select(
-                Tables.AUTHOR.ID, Tables.AUTHOR.FIRST_NAME, Tables.AUTHOR.SECOND_NAME,
-                Tables.AUTHOR.PATRONYMIC, Tables.AUTHOR.BIOGRAPHY
-        ).from(Tables.AUTHOR).where(Tables.AUTHOR.ID.equal(id)).fetchOne();
+        Record record = authorRepository.getAuthorById(id);
 
         if (record == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 
@@ -61,5 +57,15 @@ public class AuthorService {
                         message + "] due to : " + ex.getMessage());
             }
         });
+    }
+
+    public Boolean checkAuthor(String author) {
+        author = author.split(" ")[0];
+        return authorRepository.existsBySurname(author);
+    }
+
+    public ResponseEntity<String> addBookToAuthor(AuthorBookRequest request) {
+        Integer authorId = authorRepository.getAuthorIdBySurname(request.getAuthor().split(" ")[0]);
+        return authorBookRepository.addBookToAuthor(authorId, request.getBookId());
     }
 }

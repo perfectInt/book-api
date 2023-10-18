@@ -17,5 +17,8 @@ public class NotificationService {
     @KafkaListener(topics = "author-notification-topic", groupId = "author-group")
     public void receiveMessage(String message) {
         System.out.println("Received new author from author-service:\n" + message);
+        NotificationDto notificationDto = new NotificationDto();
+        notificationDto.setMessage(message);
+        createNotification(notificationDto);
     }
 }
