@@ -12,3 +12,12 @@ spring:
   liquibase:
     change-log: classpath:/db/changelog/changelog.xml
     enabled: true
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: always
+    properties:
+      org:
+        quartz:
+          jobStore:
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate

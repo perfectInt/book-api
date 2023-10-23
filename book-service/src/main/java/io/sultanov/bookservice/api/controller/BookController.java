@@ -4,6 +4,7 @@ import io.sultanov.bookservice.domain.Book;
 import io.sultanov.bookservice.domain.BookDto;
 import io.sultanov.bookservice.domain.BookService;
 import lombok.RequiredArgsConstructor;
+import org.quartz.SchedulerException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ public class BookController {
     }
 
     @GetMapping
-    public List<Book> getBooks() {
+    public List<Book> getBooks() throws SchedulerException {
         return bookService.getBooks();
     }
 
